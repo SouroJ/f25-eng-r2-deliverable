@@ -1,9 +1,3 @@
-import { fileURLToPath } from "url";
-import path from "path";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 /** @type {import("eslint").Linter.Config} */
 module.exports = {
   root: true, // Ignores config files in parent directories
