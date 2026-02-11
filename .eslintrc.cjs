@@ -4,7 +4,7 @@ module.exports = {
   parser: "@typescript-eslint/parser",
   parserOptions: {
     project: true,
-    tsconfigRootDir: __dirname,
+    tsconfigRootDir: process.cwd(),
   },
   plugins: ["@typescript-eslint"],
   extends: [
