@@ -16,11 +16,53 @@ export default function SpeciesChatbot() {
     }
   };
 
-const handleSubmit = async () => {
-  // TODO: Implement this function
-}
+  const handleSubmit = async () => {
+    // TODO: Implement this function
+    const trimmed = message.trim();
+    if (!trimmed) return;
 
-return (
+    // adding the user message
+    setChatLog((prev) => [...prev, { role: "user", content: trimmed }]);
+    setMessage("");
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: trimmed }),
+      });
+
+      if (!res.ok) {
+        setChatLog((prev) => [...prev, { role: "bot", content: "Something went wrong. Please try again." }]);
+        return;
+      }
+
+      const data: unknown = await res.json();
+
+      const responseText =
+        typeof data === "object" &&
+        data !== null &&
+        "response" in data &&
+        typeof (data as { response?: unknown }).response === "string"
+          ? (data as { response: string }).response
+          : "No response received";
+
+      setChatLog((prev) => [
+        ...prev,
+        {
+          role: "bot",
+          content: responseText,
+        },
+      ]);
+    } catch (error) {
+      // unexpected error or network error
+      setChatLog((prev) => [...prev, { role: "bot", content: "Network error. Please try again." }]);
+    }
+  };
+
+  return (
     <>
       <TypographyH2>Species Chatbot</TypographyH2>
       <div className="mt-4 flex gap-4">

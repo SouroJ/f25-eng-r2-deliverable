@@ -21,9 +21,12 @@ import {
 } from "@/components/ui/dialog";
 import type { Database } from "@/lib/schema";
 import Image from "next/image";
+import EditSpeciesDialog from "./edit-species-dialog";
 type Species = Database["public"]["Tables"]["species"]["Row"];
 
-export default function SpeciesCard({ species }: { species: Species }) {
+export default function SpeciesCard({ species, sessionId }: { species: Species; sessionId: string | null }) {
+  const canEdit = sessionId != null && species.author === sessionId;
+
   return (
     <div className="m-4 w-72 min-w-72 flex-none rounded border-2 p-3 shadow">
       {species.image && (
@@ -35,39 +38,43 @@ export default function SpeciesCard({ species }: { species: Species }) {
       <h4 className="text-lg font-light italic">{species.common_name}</h4>
       <p>{species.description ? species.description.slice(0, 150).trim() + "..." : ""}</p>
       {/* Replace the button with the detailed view dialog. */}
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button className="mt-3 w-full">Learn more!</Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle className="italic">{species.scientific_name}</DialogTitle>
-            <DialogDescription>{species.common_name ?? "No common name provided"}</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div>
-                <div className="text-sm font-medium">Kingdom</div>
-                <div className="text-sm text-muted-foreground">{species.kingdom}</div>
-              </div>
+      <div className="mt-3 flex gap-2">
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button className="flex-1">Learn more!</Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle className="italic">{species.scientific_name}</DialogTitle>
+              <DialogDescription>{species.common_name ?? "No common name provided"}</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div>
+                  <div className="text-sm font-medium">Kingdom</div>
+                  <div className="text-sm text-muted-foreground">{species.kingdom}</div>
+                </div>
 
-              <div>
-                <div className="text-sm font-medium">Total population</div>
-                <div className="text-sm text-muted-foreground">
-                  {species.total_population == null ? "Unknown" : species.total_population.toLocaleString()}
+                <div>
+                  <div className="text-sm font-medium">Total population</div>
+                  <div className="text-sm text-muted-foreground">
+                    {species.total_population == null ? "Unknown" : species.total_population.toLocaleString()}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div>
-              <div className="text-sm font-medium">Description</div>
-              <p className="whitespace-pre-wrap text-sm text-muted-foreground">
-                {species.description ?? "No description provided"}
-              </p>
+              <div>
+                <div className="text-sm font-medium">Description</div>
+                <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+                  {species.description ?? "No description provided"}
+                </p>
+              </div>
             </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
+
+        {canEdit && <EditSpeciesDialog species={species} />}
+      </div>
     </div>
   );
 }
